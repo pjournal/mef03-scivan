@@ -6,4 +6,4 @@
 
 # BKM Assignment
 
-+[Assignment_BKM.html].(Assignment_BKM.html)
++[Assignment_BKM].(https://github.com/pjournal/mef03-scivan//Assignment_BKM.html)
