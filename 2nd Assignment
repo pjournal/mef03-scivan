@@ -1,0 +1,65 @@
+---
+title: "BKM"
+author: "Civan Şık"
+date: "27 11 2019"
+output: html_document
+---
+
+
+## 1.Introduction
+Data contains "Sectoral Distribution of Expenditures in 6 Months in 2019".
+
+The web site is here: [BKM-Secilen aya ait sektorel gelisim](https://bkm.com.tr/secilen-aya-ait-sektorel-gelisim/?filter_year=2019&filter_month=6&List=Listele)
+
+
+```{r, echo=TRUE, message=FALSE}
+
+library(tidyverse)
+library(ggplot2)
+library(scales)
+
+```
+
+## 2.Download Raw Data and Organize Data
+
+```{r, echo=TRUE, message=FALSE}
+url <- "https://bkm.com.tr/secilen-aya-ait-sektorel-gelisim/?filter_year=2019&filter_month=1"
+page <- read_html(url)
+bkm_tablo_1 <- html_table(page, fill = TRUE)[[4]][-c(1:2),]
+
+
+for(i in 2:6) {
+  url <- paste("https://bkm.com.tr/secilen-aya-ait-sektorel-gelisim/?filter_year=2019&filter_month=", i, sep = "")
+  page <- read_html(url)
+  bkm_tablo_1 <- bind_rows(bkm_tablo_1, html_table(page, fill = TRUE)[[4]][-c(1:2),-1])
+}
+
+sec <- c(bkm_tablo_1 %>% select(X1) %>%  filter(X1 != "NA"))
+sec_1 <- c(rep(sec[["X1"]], times=6))
+
+bkm_tablo_2 <- bkm_tablo_1 %>% mutate(X1 = sec_1) %>% filter(X1 != "TOPLAM")
+
+month_1 <- c(rep(1:6, times=1, each=26))
+bkm_tablo_3 <- bkm_tablo_2 %>% mutate(Month = month_1)
+bkm_tablo_4  <- as.data.frame(lapply(bkm_tablo_3, function(x) as.numeric(gsub(",", ".", gsub("\\.", "", x)))))
+
+bkm_tablo_4 [,1] <- bkm_tablo_3[,1]
+
+colnames(bkm_tablo_4)<-c("Sector","CC_num","DC_num","CC_volume","DC_volume","Months")
+head(bkm_tablo_4)
+
+
+```
+
+## 3.Let's see if there is a corelation between "Araba Kiralama", "Araç Kiralama" and "Benzin ve Yakıt İstasyonları" in terms of volume. Do they change in a similar trend over a 6 month period?
+
+```{r, echo=TRUE}
+focused <- c("ARABA KİRALAMA","ARAÇ KİRALAMA-SATIŞ/SERVİS/YEDEK PARÇA","BENZİN VE YAKIT İSTASYONLARI")
+bkm_analysis_1 <- bkm_tablo_4 %>% filter(Sector %in% focused) %>% mutate(SUM_VOLUME = CC_volume + DC_volume) %>% group_by(Months) 
+ggplot(bkm_analysis_1,aes(x=Months, y=SUM_VOLUME, color=Sector)) +
+  geom_line()
+
+```
+
+
+
