@@ -9,4 +9,4 @@
 [Assignment_BKM](https://github.com/pjournal/mef03-scivan//Assignment_BKM.html)
 
 # Join Assignment
-[Tennis_Join](https://github.com/pjournal/mef03-scivan/blob/master/Tennis_Joins.html)
+[Tennis_Join](https://github.com/pjournal/mef03-scivan//Tennis_Joins.html)
